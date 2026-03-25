@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useListReadings } from "@workspace/api-client-react";
 import { MarkerDashboard, Marker } from "@workspace/api-client-react/src/generated/api.schemas";
 import { format, parseISO } from "date-fns";
@@ -10,9 +10,17 @@ import {
   CartesianGrid,
   Tooltip,
   ReferenceArea,
+  ReferenceLine,
   ResponsiveContainer,
 } from "recharts";
 import { Loader2 } from "lucide-react";
+
+interface EventMarker {
+  id: number;
+  eventDate: string;
+  name: string;
+  description?: string;
+}
 
 interface MarkerHistoryChartProps {
   dashboardData: MarkerDashboard[];
@@ -33,10 +41,12 @@ function SingleMarkerChart({
   marker,
   readings,
   color,
+  events,
 }: {
   marker: Marker;
   readings: { date: string; value: number; sortKey: number }[];
   color: string;
+  events: EventMarker[];
 }) {
   if (readings.length === 0) {
     return (
@@ -124,6 +134,16 @@ function SingleMarkerChart({
               stroke="rgba(34,197,94,0.3)"
               strokeWidth={1}
             />
+            {/* Event markers as vertical lines */}
+            {events.map((event) => (
+              <ReferenceLine
+                key={event.id}
+                x={format(parseISO(event.eventDate), "MMM d")}
+                stroke="rgba(168, 85, 247, 0.3)"
+                strokeWidth={2}
+                strokeDasharray="5 5"
+              />
+            ))}
             <Area
               type="monotone"
               dataKey="value"
@@ -143,6 +163,26 @@ function SingleMarkerChart({
 
 export function MarkerHistoryChart({ dashboardData }: MarkerHistoryChartProps) {
   const { data: readings, isLoading } = useListReadings();
+  const [events, setEvents] = useState<EventMarker[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch("/api/events");
+        if (response.ok) {
+          const data = await response.json();
+          setEvents(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch events:", error);
+      } finally {
+        setEventsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const markerChartData = useMemo(() => {
     if (!readings || readings.length === 0) return [];
@@ -161,7 +201,7 @@ export function MarkerHistoryChart({ dashboardData }: MarkerHistoryChartProps) {
     });
   }, [readings, dashboardData]);
 
-  if (isLoading) {
+  if (isLoading || eventsLoading) {
     return (
       <div className="w-full rounded-2xl border border-border/50 bg-card p-6 mb-8 flex items-center justify-center h-32">
         <Loader2 className="h-6 w-6 animate-spin text-primary mr-3" />
@@ -187,7 +227,7 @@ export function MarkerHistoryChart({ dashboardData }: MarkerHistoryChartProps) {
       <div className="mb-4">
         <h2 className="text-xl font-bold text-foreground">Marker History</h2>
         <p className="text-sm text-muted-foreground">
-          Shaded green band = reference range
+          Shaded green band = reference range · Purple dashed line = event marker
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -197,6 +237,7 @@ export function MarkerHistoryChart({ dashboardData }: MarkerHistoryChartProps) {
             marker={marker}
             readings={readings}
             color={COLORS[index % COLORS.length]}
+            events={events}
           />
         ))}
       </div>

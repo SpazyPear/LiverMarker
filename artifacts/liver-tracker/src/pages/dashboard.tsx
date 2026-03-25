@@ -2,6 +2,7 @@ import { Loader2, ActivitySquare } from "lucide-react";
 import Layout from "@/components/layout";
 import { DashboardCard } from "@/components/dashboard-card";
 import { AddReadingsSheet } from "@/components/add-readings-sheet";
+import { AddEventSheet } from "@/components/add-event-sheet";
 import { useDashboardData } from "@/hooks/use-dashboard";
 import { MarkerHistoryChart } from "@/components/marker-history-chart";
 
@@ -50,6 +51,7 @@ export default function Dashboard() {
       )}
 
       <AddReadingsSheet />
+      <AddEventSheet />
     </Layout>
   );
 }
