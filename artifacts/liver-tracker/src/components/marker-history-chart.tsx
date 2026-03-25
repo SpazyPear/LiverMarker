@@ -72,7 +72,7 @@ function SingleMarkerChart({
       </div>
       <div className="h-28">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={readings} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+          <AreaChart data={readings} margin={{ top: 4, right: 4, left: -4, bottom: 0 }}>
             <defs>
               <linearGradient id={`grad-${marker.id}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={color} stopOpacity={0.3} />
@@ -94,6 +94,12 @@ function SingleMarkerChart({
               tickLine={false}
               axisLine={false}
               tickCount={4}
+              tickFormatter={(v: number) => {
+                if (Math.abs(v) >= 100) return Math.round(v).toString();
+                if (Math.abs(v) >= 10) return parseFloat(v.toFixed(1)).toString();
+                return parseFloat(v.toFixed(2)).toString();
+              }}
+              width={38}
             />
             <Tooltip
               contentStyle={{
