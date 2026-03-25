@@ -3,6 +3,7 @@ import Layout from "@/components/layout";
 import { DashboardCard } from "@/components/dashboard-card";
 import { AddReadingsSheet } from "@/components/add-readings-sheet";
 import { useDashboardData } from "@/hooks/use-dashboard";
+import { MarkerHistoryChart } from "@/components/marker-history-chart";
 
 export default function Dashboard() {
   const { data: dashboardData, isLoading, error } = useDashboardData();
@@ -38,11 +39,14 @@ export default function Dashboard() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {dashboardData.map((data, index) => (
-            <DashboardCard key={data.marker.id} data={data} index={index} />
-          ))}
-        </div>
+        <>
+          <MarkerHistoryChart dashboardData={dashboardData} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {dashboardData.map((data, index) => (
+              <DashboardCard key={data.marker.id} data={data} index={index} />
+            ))}
+          </div>
+        </>
       )}
 
       <AddReadingsSheet />
