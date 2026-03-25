@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Liver Marker Tracker"
+version = "1.0.0"
+id = "artifacts/liver-tracker"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22601
+
+[services.development]
+run = "pnpm --filter @workspace/liver-tracker run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/liver-tracker", "run", "build" ]
+publicDir = "artifacts/liver-tracker/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22601"
+BASE_PATH = "/"

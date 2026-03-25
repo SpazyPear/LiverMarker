@@ -1,0 +1,11 @@
+packages:
+  "date-fns": "For formatting dates nicely on the dashboard and readings"
+  "framer-motion": "For smooth stagger animations on the dashboard cards"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility to cleanly merge Tailwind classes"
+
+images: []
+
+notes:
+  - "Assuming @workspace/api-client-react provides the generated React Query hooks"
+  - "Assuming standard shadcn-like UI components exist in src/components/ui"

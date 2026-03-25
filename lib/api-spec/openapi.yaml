@@ -1,6 +1,5 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
   description: API specification
@@ -10,6 +9,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: markers
+    description: Liver marker operations
+  - name: readings
+    description: Daily readings operations
 paths:
   /healthz:
     get:
@@ -24,6 +27,101 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /markers:
+    get:
+      operationId: listMarkers
+      tags: [markers]
+      summary: List all liver markers
+      responses:
+        "200":
+          description: List of markers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Marker"
+    post:
+      operationId: createMarker
+      tags: [markers]
+      summary: Create a new liver marker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMarker"
+      responses:
+        "201":
+          description: Created marker
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Marker"
+
+  /markers/{markerId}:
+    delete:
+      operationId: deleteMarker
+      tags: [markers]
+      summary: Delete a marker
+      parameters:
+        - name: markerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /readings:
+    get:
+      operationId: listReadings
+      tags: [readings]
+      summary: List all readings
+      responses:
+        "200":
+          description: List of readings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reading"
+    post:
+      operationId: createReading
+      tags: [readings]
+      summary: Create a new daily reading
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReading"
+      responses:
+        "201":
+          description: Created reading
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reading"
+
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [readings]
+      summary: Get dashboard data for all markers
+      responses:
+        "200":
+          description: Dashboard stats per marker
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MarkerDashboard"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +132,99 @@ components:
       required:
         - status
 
+    Marker:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        unit:
+          type: string
+        refMin:
+          type: number
+        refMax:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - unit
+        - refMin
+        - refMax
+        - createdAt
+
+    CreateMarker:
+      type: object
+      properties:
+        name:
+          type: string
+        unit:
+          type: string
+        refMin:
+          type: number
+        refMax:
+          type: number
+      required:
+        - name
+        - unit
+        - refMin
+        - refMax
+
+    Reading:
+      type: object
+      properties:
+        id:
+          type: integer
+        markerId:
+          type: integer
+        value:
+          type: number
+        recordedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - markerId
+        - value
+        - recordedAt
+
+    CreateReading:
+      type: object
+      properties:
+        markerId:
+          type: integer
+        value:
+          type: number
+        recordedAt:
+          type: string
+          format: date-time
+      required:
+        - markerId
+        - value
+
+    MarkerDashboard:
+      type: object
+      properties:
+        marker:
+          $ref: "#/components/schemas/Marker"
+        currentValue:
+          type: number
+          nullable: true
+        threedayAverage:
+          type: number
+          nullable: true
+        threedayTrend:
+          type: string
+          enum: [up, down, stable, insufficient_data]
+        percentFromRef:
+          type: number
+          nullable: true
+      required:
+        - marker
+        - currentValue
+        - threedayAverage
+        - threedayTrend
+        - percentFromRef

@@ -5,18 +5,28 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { HealthStatus } from "./api.schemas";
+import type {
+  CreateMarker,
+  CreateReading,
+  HealthStatus,
+  Marker,
+  MarkerDashboard,
+  Reading,
+} from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
-import type { ErrorType } from "../custom-fetch";
+import type { ErrorType, BodyType } from "../custom-fetch";
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -92,6 +102,485 @@ export function useHealthCheck<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getHealthCheckQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary List all liver markers
+ */
+export const getListMarkersUrl = () => {
+  return `/api/markers`;
+};
+
+export const listMarkers = async (options?: RequestInit): Promise<Marker[]> => {
+  return customFetch<Marker[]>(getListMarkersUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListMarkersQueryKey = () => {
+  return [`/api/markers`] as const;
+};
+
+export const getListMarkersQueryOptions = <
+  TData = Awaited<ReturnType<typeof listMarkers>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMarkers>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListMarkersQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listMarkers>>> = ({
+    signal,
+  }) => listMarkers({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listMarkers>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListMarkersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listMarkers>>
+>;
+export type ListMarkersQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all liver markers
+ */
+
+export function useListMarkers<
+  TData = Awaited<ReturnType<typeof listMarkers>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMarkers>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListMarkersQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a new liver marker
+ */
+export const getCreateMarkerUrl = () => {
+  return `/api/markers`;
+};
+
+export const createMarker = async (
+  createMarker: CreateMarker,
+  options?: RequestInit,
+): Promise<Marker> => {
+  return customFetch<Marker>(getCreateMarkerUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createMarker),
+  });
+};
+
+export const getCreateMarkerMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createMarker>>,
+    TError,
+    { data: BodyType<CreateMarker> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createMarker>>,
+  TError,
+  { data: BodyType<CreateMarker> },
+  TContext
+> => {
+  const mutationKey = ["createMarker"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createMarker>>,
+    { data: BodyType<CreateMarker> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createMarker(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateMarkerMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createMarker>>
+>;
+export type CreateMarkerMutationBody = BodyType<CreateMarker>;
+export type CreateMarkerMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a new liver marker
+ */
+export const useCreateMarker = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createMarker>>,
+    TError,
+    { data: BodyType<CreateMarker> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createMarker>>,
+  TError,
+  { data: BodyType<CreateMarker> },
+  TContext
+> => {
+  return useMutation(getCreateMarkerMutationOptions(options));
+};
+
+/**
+ * @summary Delete a marker
+ */
+export const getDeleteMarkerUrl = (markerId: number) => {
+  return `/api/markers/${markerId}`;
+};
+
+export const deleteMarker = async (
+  markerId: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteMarkerUrl(markerId), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteMarkerMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteMarker>>,
+    TError,
+    { markerId: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteMarker>>,
+  TError,
+  { markerId: number },
+  TContext
+> => {
+  const mutationKey = ["deleteMarker"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteMarker>>,
+    { markerId: number }
+  > = (props) => {
+    const { markerId } = props ?? {};
+
+    return deleteMarker(markerId, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteMarkerMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteMarker>>
+>;
+
+export type DeleteMarkerMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a marker
+ */
+export const useDeleteMarker = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteMarker>>,
+    TError,
+    { markerId: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteMarker>>,
+  TError,
+  { markerId: number },
+  TContext
+> => {
+  return useMutation(getDeleteMarkerMutationOptions(options));
+};
+
+/**
+ * @summary List all readings
+ */
+export const getListReadingsUrl = () => {
+  return `/api/readings`;
+};
+
+export const listReadings = async (
+  options?: RequestInit,
+): Promise<Reading[]> => {
+  return customFetch<Reading[]>(getListReadingsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListReadingsQueryKey = () => {
+  return [`/api/readings`] as const;
+};
+
+export const getListReadingsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listReadings>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listReadings>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListReadingsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listReadings>>> = ({
+    signal,
+  }) => listReadings({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listReadings>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListReadingsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listReadings>>
+>;
+export type ListReadingsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all readings
+ */
+
+export function useListReadings<
+  TData = Awaited<ReturnType<typeof listReadings>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listReadings>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListReadingsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a new daily reading
+ */
+export const getCreateReadingUrl = () => {
+  return `/api/readings`;
+};
+
+export const createReading = async (
+  createReading: CreateReading,
+  options?: RequestInit,
+): Promise<Reading> => {
+  return customFetch<Reading>(getCreateReadingUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createReading),
+  });
+};
+
+export const getCreateReadingMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createReading>>,
+    TError,
+    { data: BodyType<CreateReading> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createReading>>,
+  TError,
+  { data: BodyType<CreateReading> },
+  TContext
+> => {
+  const mutationKey = ["createReading"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createReading>>,
+    { data: BodyType<CreateReading> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createReading(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateReadingMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createReading>>
+>;
+export type CreateReadingMutationBody = BodyType<CreateReading>;
+export type CreateReadingMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a new daily reading
+ */
+export const useCreateReading = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createReading>>,
+    TError,
+    { data: BodyType<CreateReading> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createReading>>,
+  TError,
+  { data: BodyType<CreateReading> },
+  TContext
+> => {
+  return useMutation(getCreateReadingMutationOptions(options));
+};
+
+/**
+ * @summary Get dashboard data for all markers
+ */
+export const getGetDashboardUrl = () => {
+  return `/api/dashboard`;
+};
+
+export const getDashboard = async (
+  options?: RequestInit,
+): Promise<MarkerDashboard[]> => {
+  return customFetch<MarkerDashboard[]>(getGetDashboardUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetDashboardQueryKey = () => {
+  return [`/api/dashboard`] as const;
+};
+
+export const getGetDashboardQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDashboard>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getDashboard>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetDashboardQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getDashboard>>> = ({
+    signal,
+  }) => getDashboard({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDashboard>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetDashboardQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDashboard>>
+>;
+export type GetDashboardQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get dashboard data for all markers
+ */
+
+export function useGetDashboard<
+  TData = Awaited<ReturnType<typeof getDashboard>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getDashboard>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetDashboardQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

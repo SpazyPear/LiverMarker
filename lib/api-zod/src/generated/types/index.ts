@@ -6,4 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./createMarker";
+export * from "./createReading";
 export * from "./healthStatus";
+export * from "./marker";
+export * from "./markerDashboard";
+export * from "./markerDashboardThreedayTrend";
+export * from "./reading";

@@ -8,3 +8,50 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface Marker {
+  id: number;
+  name: string;
+  unit: string;
+  refMin: number;
+  refMax: number;
+  createdAt: string;
+}
+
+export interface CreateMarker {
+  name: string;
+  unit: string;
+  refMin: number;
+  refMax: number;
+}
+
+export interface Reading {
+  id: number;
+  markerId: number;
+  value: number;
+  recordedAt: string;
+}
+
+export interface CreateReading {
+  markerId: number;
+  value: number;
+  recordedAt?: string;
+}
+
+export type MarkerDashboardThreedayTrend =
+  (typeof MarkerDashboardThreedayTrend)[keyof typeof MarkerDashboardThreedayTrend];
+
+export const MarkerDashboardThreedayTrend = {
+  up: "up",
+  down: "down",
+  stable: "stable",
+  insufficient_data: "insufficient_data",
+} as const;
+
+export interface MarkerDashboard {
+  marker: Marker;
+  currentValue: number | null;
+  threedayAverage: number | null;
+  threedayTrend: MarkerDashboardThreedayTrend;
+  percentFromRef: number | null;
+}

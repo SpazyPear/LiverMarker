@@ -14,3 +14,72 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * @summary List all liver markers
+ */
+export const ListMarkersResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  unit: zod.string(),
+  refMin: zod.number(),
+  refMax: zod.number(),
+  createdAt: zod.date(),
+});
+export const ListMarkersResponse = zod.array(ListMarkersResponseItem);
+
+/**
+ * @summary Create a new liver marker
+ */
+export const CreateMarkerBody = zod.object({
+  name: zod.string(),
+  unit: zod.string(),
+  refMin: zod.number(),
+  refMax: zod.number(),
+});
+
+/**
+ * @summary Delete a marker
+ */
+export const DeleteMarkerParams = zod.object({
+  markerId: zod.coerce.number(),
+});
+
+/**
+ * @summary List all readings
+ */
+export const ListReadingsResponseItem = zod.object({
+  id: zod.number(),
+  markerId: zod.number(),
+  value: zod.number(),
+  recordedAt: zod.date(),
+});
+export const ListReadingsResponse = zod.array(ListReadingsResponseItem);
+
+/**
+ * @summary Create a new daily reading
+ */
+export const CreateReadingBody = zod.object({
+  markerId: zod.number(),
+  value: zod.number(),
+  recordedAt: zod.date().optional(),
+});
+
+/**
+ * @summary Get dashboard data for all markers
+ */
+export const GetDashboardResponseItem = zod.object({
+  marker: zod.object({
+    id: zod.number(),
+    name: zod.string(),
+    unit: zod.string(),
+    refMin: zod.number(),
+    refMax: zod.number(),
+    createdAt: zod.date(),
+  }),
+  currentValue: zod.number().nullable(),
+  threedayAverage: zod.number().nullable(),
+  threedayTrend: zod.enum(["up", "down", "stable", "insufficient_data"]),
+  percentFromRef: zod.number().nullable(),
+});
+export const GetDashboardResponse = zod.array(GetDashboardResponseItem);
