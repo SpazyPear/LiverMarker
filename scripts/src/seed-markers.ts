@@ -4,9 +4,9 @@ const defaultMarkers = [
   { name: "ALT", unit: "U/L", refMin: 7, refMax: 56 },
   { name: "AST", unit: "U/L", refMin: 10, refMax: 40 },
   { name: "GGT", unit: "U/L", refMin: 9, refMax: 48 },
-  { name: "ALP", unit: "U/L", refMin: 44, refMax: 147 },
   { name: "Bilirubin (Total)", unit: "mg/dL", refMin: 0.1, refMax: 1.2 },
   { name: "Albumin", unit: "g/dL", refMin: 3.4, refMax: 5.4 },
+  { name: "INR", unit: "", refMin: 0.8, refMax: 1.1 },
 ];
 
 async function seed() {
