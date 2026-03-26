@@ -1,5 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { seedProductionData } from "@workspace/db";
 
 const rawPort = process.env["PORT"];
 
@@ -14,6 +15,11 @@ const port = Number(rawPort);
 if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
+
+// Seed production database on first boot if empty
+seedProductionData().catch((err) => {
+  logger.error({ err }, "Database seeding failed");
+});
 
 app.listen(port, (err) => {
   if (err) {
