@@ -1,24 +1,16 @@
 import app from "./app";
 import { logger } from "./lib/logger";
-import { seedProductionData } from "@workspace/db";
+import { maybeSeedDefaultMarkers } from "@workspace/sheets-store";
 
-const rawPort = process.env["PORT"];
-
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
-
+const rawPort = process.env["PORT"] ?? "8787";
 const port = Number(rawPort);
 
 if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-// Seed production database on first boot if empty
-seedProductionData().catch((err) => {
-  logger.error({ err }, "Database seeding failed");
+maybeSeedDefaultMarkers().catch((err) => {
+  logger.error({ err }, "Default marker seed failed");
 });
 
 app.listen(port, (err) => {

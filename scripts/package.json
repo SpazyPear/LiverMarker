@@ -9,7 +9,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@workspace/db": "workspace:*"
+    "@workspace/sheets-store": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",

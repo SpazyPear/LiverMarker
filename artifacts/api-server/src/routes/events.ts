@@ -1,27 +1,51 @@
 import { Router, type IRouter } from "express";
-import { db, eventsTable, insertEventSchema } from "@workspace/db";
-import { desc, eq } from "drizzle-orm";
+import { insertEventSchema, updateEventSchema } from "@workspace/db/schema";
+import { getSheetsRepository } from "@workspace/sheets-store";
 
 const router: IRouter = Router();
+const store = () => getSheetsRepository();
 
 router.get("/events", async (_req, res) => {
-  const events = await db.select().from(eventsTable).orderBy(desc(eventsTable.eventDate));
+  const events = await store().listEvents();
   res.json(events);
 });
 
 router.post("/events", async (req, res) => {
   const data = insertEventSchema.parse(req.body);
-  const [event] = await db.insert(eventsTable).values(data).returning();
+  const event = await store().createEvent(data);
   res.status(201).json(event);
 });
 
-router.delete("/events/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid event ID" });
+router.patch("/events/:eventId", async (req, res) => {
+  const eventId = parseInt(req.params.eventId, 10);
+  if (Number.isNaN(eventId)) {
+    res.status(400).json({ error: "Invalid event id" });
     return;
   }
-  await db.delete(eventsTable).where(eq(eventsTable.id, id));
+  const data = updateEventSchema.parse(req.body);
+  if (Object.keys(data).length === 0) {
+    res.status(400).json({ error: "No fields to update" });
+    return;
+  }
+  const updated = await store().updateEvent(eventId, data);
+  if (!updated) {
+    res.status(404).json({ error: "Event not found" });
+    return;
+  }
+  res.json(updated);
+});
+
+router.delete("/events/:eventId", async (req, res) => {
+  const eventId = parseInt(req.params.eventId, 10);
+  if (Number.isNaN(eventId)) {
+    res.status(400).json({ error: "Invalid event id" });
+    return;
+  }
+  const ok = await store().deleteEvent(eventId);
+  if (!ok) {
+    res.status(404).json({ error: "Event not found" });
+    return;
+  }
   res.status(204).send();
 });
 

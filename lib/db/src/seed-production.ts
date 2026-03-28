@@ -1,6 +1,9 @@
 import { pool } from "./index";
 
 export async function seedProductionData(): Promise<void> {
+  if (!pool) {
+    return;
+  }
   const client = await pool.connect();
   try {
     // Ensure the events table exists (may not be there on older deployments)

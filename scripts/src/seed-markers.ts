@@ -1,4 +1,4 @@
-import { db, markersTable } from "@workspace/db";
+import { getSheetsRepository } from "@workspace/sheets-store";
 
 const defaultMarkers = [
   { name: "ALT", unit: "U/L", refMin: 12, refMax: 28 },
@@ -11,15 +11,16 @@ const defaultMarkers = [
 ];
 
 async function seed() {
-  console.log("Seeding default liver markers...");
-  const existing = await db.select().from(markersTable);
+  console.log("Seeding default liver markers (Google Sheet)...");
+  const store = getSheetsRepository();
+  const existing = await store.listMarkers();
   if (existing.length > 0) {
-    console.log(`Markers already seeded (${existing.length} found). Skipping.`);
+    console.log(`Markers already present (${existing.length}). Skipping.`);
     process.exit(0);
   }
 
   for (const marker of defaultMarkers) {
-    await db.insert(markersTable).values(marker);
+    await store.createMarker(marker);
     console.log(`  ✓ ${marker.name}`);
   }
   console.log("Done!");

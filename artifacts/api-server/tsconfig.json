@@ -11,6 +11,9 @@
       "path": "../../lib/db"
     },
     {
+      "path": "../../lib/sheets-store"
+    },
+    {
       "path": "../../lib/api-zod"
     }
   ]
