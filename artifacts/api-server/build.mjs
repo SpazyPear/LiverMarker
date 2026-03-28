@@ -9,6 +9,28 @@ import { rm } from "node:fs/promises";
 globalThis.require = createRequire(import.meta.url);
 
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
+/** Monorepo root (parent of `artifacts/`). */
+const workspaceRoot = path.resolve(artifactDir, "../..");
+
+/** Resolve `@workspace/*` without relying on node_modules symlinks (fixes Replit / partial installs). */
+const workspaceAliases = {
+  "@workspace/sheets-store": path.join(workspaceRoot, "lib/sheets-store/src/index.ts"),
+  "@workspace/db/schema": path.join(workspaceRoot, "lib/db/src/schema/index.ts"),
+  "@workspace/api-zod": path.join(workspaceRoot, "lib/api-zod/src/index.ts"),
+};
+
+const workspaceResolvePlugin = {
+  name: "workspace-resolve",
+  setup(build) {
+    build.onResolve({ filter: /^@workspace\// }, (args) => {
+      const target = workspaceAliases[args.path];
+      if (target) {
+        return { path: target };
+      }
+      return null;
+    });
+  },
+};
 
 async function buildAll() {
   const distDir = path.resolve(artifactDir, "dist");
@@ -103,8 +125,9 @@ async function buildAll() {
     ],
     sourcemap: "linked",
     plugins: [
+      workspaceResolvePlugin,
       // pino relies on workers to handle logging, instead of externalizing it we use a plugin to handle it
-      esbuildPluginPino({ transports: ["pino-pretty"] })
+      esbuildPluginPino({ transports: ["pino-pretty"] }),
     ],
     // Make sure packages that are cjs only (e.g. express) but are bundled continue to work in our esm output file
     banner: {
