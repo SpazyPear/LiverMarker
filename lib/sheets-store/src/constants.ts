@@ -1,5 +1,5 @@
-/** Default spreadsheet if `GOOGLE_SHEETS_SPREADSHEET_ID` is unset (Maisies liver markers). */
-export const DEFAULT_SPREADSHEET_ID = "1JcLZlS4sXSjH8Tyi9AOGTVmNGiynHEMS7_tzgmAGL-0";
+/** Default spreadsheet if `GOOGLE_SHEETS_SPREADSHEET_ID` is unset. */
+export const DEFAULT_SPREADSHEET_ID = "1mmMO7WEqTq2tRCL8Z0SAgBJV2_fWjgSn6BtcgkvQCmg";
 
 export const TAB_MARKERS = "Markers";
 export const TAB_READINGS = "Readings";

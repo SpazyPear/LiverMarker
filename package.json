@@ -6,13 +6,16 @@
     "preinstall": "node -e \"const a=process.env.npm_config_user_agent||'';if(!a.includes('pnpm')){console.error('Use pnpm instead of npm/yarn for this repo.');process.exit(1);}\"",
     "dev:api": "pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/api-server run start",
     "dev:app": "pnpm --filter @workspace/liver-tracker dev",
+    "dev:local": "concurrently -k -n api,web -c blue,magenta \"pnpm --filter @workspace/api-server run dev\" \"wait-on -t 120000 http://127.0.0.1:8787/api/healthz && pnpm --filter @workspace/liver-tracker dev\"",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
   },
   "private": true,
   "devDependencies": {
-    "typescript": "~5.9.2",
-    "prettier": "^3.8.1"
+    "wait-on": "^8.0.5",
+    "concurrently": "^9.1.2",
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.2"
   }
 }

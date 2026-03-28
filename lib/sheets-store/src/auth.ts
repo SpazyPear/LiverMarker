@@ -1,8 +1,20 @@
+import { readFileSync, existsSync } from "node:fs";
 import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
 import { DEFAULT_SPREADSHEET_ID } from "./constants";
 
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
+
+/** Inline JSON secret, or path to the downloaded OAuth client JSON file. */
+function loadOAuthWebCredentialsJson(): string | null {
+  const inline = process.env.GOOGLE_OAUTH_WEB_CREDENTIALS_JSON?.trim();
+  if (inline) return inline;
+  const p = process.env.GOOGLE_OAUTH_WEB_CREDENTIALS_PATH?.trim();
+  if (p && existsSync(p)) {
+    return readFileSync(p, "utf8");
+  }
+  return null;
+}
 
 function parseWebCredentials(json: string): { clientId: string; clientSecret: string } {
   const parsed = JSON.parse(json) as { web?: { client_id?: string; client_secret?: string } };
@@ -42,7 +54,7 @@ export function getSheetsClient() {
     let clientId = process.env.GOOGLE_OAUTH_CLIENT_ID?.trim();
     let clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET?.trim();
 
-    const webJson = process.env.GOOGLE_OAUTH_WEB_CREDENTIALS_JSON?.trim();
+    const webJson = loadOAuthWebCredentialsJson();
     if (webJson) {
       const w = parseWebCredentials(webJson);
       clientId = clientId ?? w.clientId;
@@ -51,7 +63,7 @@ export function getSheetsClient() {
 
     if (!clientId || !clientSecret) {
       throw new Error(
-        "OAuth: set GOOGLE_OAUTH_REFRESH_TOKEN and either GOOGLE_OAUTH_WEB_CREDENTIALS_JSON (full downloaded JSON) or GOOGLE_OAUTH_CLIENT_ID + GOOGLE_OAUTH_CLIENT_SECRET",
+        "OAuth: set GOOGLE_OAUTH_REFRESH_TOKEN and client credentials via GOOGLE_OAUTH_WEB_CREDENTIALS_JSON, GOOGLE_OAUTH_WEB_CREDENTIALS_PATH (file), or GOOGLE_OAUTH_CLIENT_ID + GOOGLE_OAUTH_CLIENT_SECRET",
       );
     }
 
@@ -61,7 +73,7 @@ export function getSheetsClient() {
   }
 
   throw new Error(
-    "Google auth: set GOOGLE_SERVICE_ACCOUNT_JSON (service account), or GOOGLE_APPLICATION_CREDENTIALS (path), or OAuth: GOOGLE_OAUTH_REFRESH_TOKEN plus GOOGLE_OAUTH_WEB_CREDENTIALS_JSON",
+    "Google auth: set GOOGLE_SERVICE_ACCOUNT_JSON (service account), or GOOGLE_APPLICATION_CREDENTIALS (path), or OAuth: GOOGLE_OAUTH_REFRESH_TOKEN plus GOOGLE_OAUTH_WEB_CREDENTIALS_JSON / GOOGLE_OAUTH_WEB_CREDENTIALS_PATH",
   );
 }
 

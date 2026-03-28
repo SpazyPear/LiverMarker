@@ -1,4 +1,5 @@
-import { getSheetsRepository } from "./repository";
+import { getSheetsRepository } from "./repository-factory";
+import { isWideLayout } from "./wide-layout";
 
 const DEFAULT_MARKERS = [
   { name: "ALT", unit: "U/L", refMin: 12, refMax: 28 },
@@ -12,6 +13,7 @@ const DEFAULT_MARKERS = [
 
 /** Inserts default liver markers when the Markers sheet has no data rows (optional demo bootstrap). */
 export async function maybeSeedDefaultMarkers(): Promise<void> {
+  if (isWideLayout()) return;
   const store = getSheetsRepository();
   const existing = await store.listMarkers();
   if (existing.length > 0) return;

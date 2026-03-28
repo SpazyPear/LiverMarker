@@ -1,4 +1,10 @@
+import { config } from "dotenv";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { getSheetsRepository } from "@workspace/sheets-store";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+config({ path: resolve(__dirname, "../../.env") });
 
 const defaultMarkers = [
   { name: "ALT", unit: "U/L", refMin: 12, refMax: 28 },

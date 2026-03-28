@@ -1,6 +1,6 @@
 import { ArrowDownRight, ArrowUpRight, Minus, AlertCircle, CheckCircle2, ArrowDown } from "lucide-react";
 import { cn, formatPercent, formatValue } from "@/lib/utils";
-import type { MarkerDashboard } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { MarkerDashboard } from "@workspace/api-client-react";
 import { motion } from "framer-motion";
 
 interface DashboardCardProps {

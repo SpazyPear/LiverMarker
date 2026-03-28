@@ -48,6 +48,16 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 
 - `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
 - `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+- `pnpm run dev:api` / `pnpm run dev:app` — local dev (API + Vite frontend)
+
+## Local development (Windows and Replit)
+
+The repo targets **Windows** (PowerShell/cmd) and **Linux** (Replit) with the same scripts:
+
+- **`@workspace/api-server` `dev` script** uses **`cross-env`** to set `NODE_ENV=development`. Avoids Unix-only `export …`, which fails on Windows.
+- From the **repository root**, run `pnpm install`, then **`pnpm dev:local`** to start the API and the web app together (or `node scripts/dev-local.mjs`). Open **http://localhost:5173** — Vite proxies `/api` to **http://127.0.0.1:8787** (see `artifacts/liver-tracker/vite.config.ts`). Override the proxy target with `VITE_DEV_API_URL` if needed.
+- **`liver-tracker`** Vite config supplies defaults for `PORT` and `BASE_PATH` when unset so local runs do not require Replit’s env injection.
+- **Google credentials**: set the same variables locally as on Replit (`GOOGLE_SERVICE_ACCOUNT_JSON` or OAuth vars). Use PowerShell: `$env:GOOGLE_SERVICE_ACCOUNT_JSON = Get-Content -Raw .\\credentials\\service-account.json` only if you keep that file **gitignored** and never commit it.
 
 ## Deploying on Replit (Google Sheets)
 

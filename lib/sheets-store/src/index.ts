@@ -1,11 +1,13 @@
-export {
-  getSheetsRepository,
-  SheetsRepository,
-  type SheetMarker,
-  type SheetReading,
-  type SheetEvent,
-  type SheetMarkerDashboard,
-} from "./repository";
+export { getSheetsRepository } from "./repository-factory";
+export { SheetsRepository } from "./repository";
+export { WideSheetsRepository } from "./wide-repository";
+export type {
+  SheetMarker,
+  SheetReading,
+  SheetEvent,
+  SheetMarkerDashboard,
+  MarkerDashboardThreedayTrend,
+} from "./types";
 export { getSheetsClient, getSpreadsheetId } from "./auth";
 export { maybeSeedDefaultMarkers } from "./seed";
 export {
@@ -17,3 +19,4 @@ export {
   HEADERS_READINGS,
   HEADERS_EVENTS,
 } from "./constants";
+export { isWideLayout, getWideTabName } from "./wide-layout";

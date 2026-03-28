@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { useListReadings } from "@workspace/api-client-react";
-import { MarkerDashboard, Marker } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { MarkerDashboard, Marker } from "@workspace/api-client-react";
 import { format, parseISO } from "date-fns";
 import {
   AreaChart,

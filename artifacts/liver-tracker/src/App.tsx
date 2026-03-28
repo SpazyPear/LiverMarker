@@ -11,7 +11,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 1,
+      /** API may start after Vite; allow several attempts while Express is still booting. */
+      retry: 8,
+      retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 10_000),
     },
   },
 });
@@ -30,7 +32,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <WouterRouter base={(import.meta.env.BASE_URL ?? "/").replace(/\/$/, "")}>
           <Router />
         </WouterRouter>
         <Toaster />

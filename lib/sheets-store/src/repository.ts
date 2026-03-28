@@ -7,40 +7,21 @@ import {
   TAB_READINGS,
 } from "./constants";
 import { getSheetsClient, getSpreadsheetId } from "./auth";
+import type {
+  SheetMarker,
+  SheetReading,
+  SheetEvent,
+  SheetMarkerDashboard,
+  MarkerDashboardThreedayTrend,
+} from "./types";
 
-export interface SheetMarker {
-  id: number;
-  name: string;
-  unit: string;
-  refMin: number;
-  refMax: number;
-  createdAt: string;
-}
-
-export interface SheetReading {
-  id: number;
-  markerId: number;
-  value: number;
-  recordedAt: string;
-}
-
-export interface SheetEvent {
-  id: number;
-  eventDate: string;
-  name: string;
-  description: string | null;
-  createdAt: string;
-}
-
-export type MarkerDashboardThreedayTrend = "up" | "down" | "stable" | "insufficient_data";
-
-export interface SheetMarkerDashboard {
-  marker: SheetMarker;
-  currentValue: number | null;
-  threedayAverage: number | null;
-  threedayTrend: MarkerDashboardThreedayTrend;
-  percentFromRef: number | null;
-}
+export type {
+  SheetMarker,
+  SheetReading,
+  SheetEvent,
+  SheetMarkerDashboard,
+  MarkerDashboardThreedayTrend,
+} from "./types";
 
 function num(v: unknown, fallback = 0): number {
   if (typeof v === "number" && !Number.isNaN(v)) return v;
@@ -446,9 +427,3 @@ export class SheetsRepository {
   }
 }
 
-let _repo: SheetsRepository | null = null;
-
-export function getSheetsRepository(): SheetsRepository {
-  if (!_repo) _repo = new SheetsRepository();
-  return _repo;
-}
