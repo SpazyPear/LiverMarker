@@ -14,6 +14,8 @@
     "@workspace/db": "workspace:*",
     "@workspace/sheets-store": "workspace:*",
     "cookie-parser": "^1.4.7",
+    "google-auth-library": "^9.15.1",
+    "googleapis": "^144.0.0",
     "cors": "^2",
     "express": "^5",
     "pino": "^9",
